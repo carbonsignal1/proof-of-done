@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { IconCamera } from "./Icons";
 
 /** Shrink a photo in the browser before upload (max 1280px, JPEG). */
 async function shrink(file: File): Promise<Blob> {
@@ -42,7 +43,7 @@ export function PhotoInput({ label, onChange }: { label: string; onChange: (blob
           onChange(blob);
         }}
       />
-      {preview ? <img src={preview} alt="Selected photo" /> : <span style={{ fontSize: 26 }}>📷</span>}
+      {preview ? <img src={preview} alt="Selected photo" /> : <span className="chrome-icon"><IconCamera /></span>}
       <span>{preview ? "Tap to retake" : label}</span>
     </label>
   );

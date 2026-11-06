@@ -6,8 +6,9 @@ import { PhotoInput } from "@/components/PhotoInput";
 import { PayPalHoldButton } from "@/components/PayPalHoldButton";
 import type { Attempt, Job } from "@/lib/types";
 
-const EVENT_ICON: Record<string, string> = {
-  created: "📝", hold: "🔒", claim: "🙋", proof: "📷", approve: "✅", reject: "↩️", review: "🤔", capture: "💳", payout: "💸", void: "🔓", error: "⚠️",
+// Timeline dot colour per event: gold for money held, green for money moving, red for problems.
+const EVENT_TONE: Record<string, string> = {
+  hold: "gold", capture: "ok", payout: "ok", approve: "ok", reject: "block", error: "block", void: "muted", review: "warn",
 };
 
 const MOCK_OUTCOMES = [
@@ -55,7 +56,7 @@ export function JobClient({ id, clientId }: { id: string; clientId: string | nul
     }
   }
 
-  if (missing) return <main className="page page-narrow"><div className="card">Job not found. <Link href="/">Back to jobs</Link></div></main>;
+  if (missing) return <main className="page page-narrow"><div className="card">Job not found. <Link href="/jobs">Back to jobs</Link></div></main>;
   if (!job) return <main className="page muted">Loading…</main>;
 
   const last: Attempt | undefined = job.attempts[job.attempts.length - 1];
@@ -64,7 +65,7 @@ export function JobClient({ id, clientId }: { id: string; clientId: string | nul
 
   return (
     <main className="page">
-      <div className="small" style={{ marginBottom: 10 }}><Link href="/">← All jobs</Link></div>
+      <div className="small" style={{ marginBottom: 10 }}><Link href="/jobs">← All jobs</Link></div>
       {note && <div className={`notice ${note.tone}`} style={{ marginBottom: 14 }}>{note.text}</div>}
 
       <div className="layout">
@@ -153,7 +154,7 @@ export function JobClient({ id, clientId }: { id: string; clientId: string | nul
         <aside className="stack">
           <section className="card">
             <h2>Payment</h2>
-            <div className="held" style={{ marginBottom: 6 }}>{usd(job.price)}</div>
+            <div className="held" style={{ marginBottom: 6 }}><span className="coin" />{usd(job.price)}</div>
             <div className="small muted" style={{ marginBottom: 10 }}>
               {job.status === "awaiting_hold" && "Not held yet."}
               {["open", "claimed", "review"].includes(job.status) && "Held by PayPal. Not charged yet."}
@@ -174,7 +175,7 @@ export function JobClient({ id, clientId }: { id: string; clientId: string | nul
             <div className="timeline">
               {[...job.events].reverse().map((e, i) => (
                 <div className="tl" key={i}>
-                  <span>{EVENT_ICON[e.kind] ?? "•"}</span>
+                  <span className={`tl-dot ${EVENT_TONE[e.kind] ?? ""}`} aria-hidden="true" />
                   <div>
                     <div className="small">{e.message}</div>
                     <div className="when">{timeAgo(e.ts)}</div>

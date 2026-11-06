@@ -129,7 +129,7 @@ export default function NewJob() {
           </p>
           <div>
             <button className="btn" onClick={draft} disabled={!canDraft}>
-              {drafting ? <><span className="spinner" /> Drafting…</> : items.length ? "Redraft with AI" : "✨ Draft checklist with AI"}
+              {drafting ? <><span className="spinner" /> Drafting…</> : items.length ? "Redraft with AI" : "Draft checklist with AI"}
             </button>
             {source && <span className="small muted" style={{ marginLeft: 10 }}>{source === "template" ? "from a template (AI in mock mode)" : `by ${source}`}</span>}
           </div>
