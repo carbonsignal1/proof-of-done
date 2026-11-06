@@ -85,7 +85,7 @@ The top bar has a **Viewing as Poster / Worker** switch so one person can play b
 2. **Worker →** open the job, take the *before* photo, claim it.
 3. Send a half-done *after* photo → rejected with feedback ("cups still on the desk").
 4. Send the finished photo → approved, PayPal captures and pays the worker.
-5. Post a second job with the **2 minutes (demo)** deadline and leave it: the hold is voided automatically.
+5. Post a second job with the **5 minutes (demo: watch it expire)** deadline, approve the hold, and leave it: the hold is voided automatically.
 
 Reset between runs with **Reset demo data** on the Jobs page or `npm run demo:reset`.
 

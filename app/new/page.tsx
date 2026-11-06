@@ -6,11 +6,12 @@ import { usd } from "@/components/state";
 type Item = { key: number; text: string; required: boolean };
 
 const DEADLINES = [
-  { label: "2 minutes (demo)", minutes: 2 },
   { label: "1 hour", minutes: 60 },
   { label: "24 hours", minutes: 24 * 60 },
   { label: "48 hours", minutes: 48 * 60 },
   { label: "72 hours", minutes: 72 * 60 },
+  // Short on purpose, to show a hold being released in a demo. Leaves time to approve PayPal.
+  { label: "5 minutes (demo: watch it expire)", minutes: 5 },
 ];
 
 const EXAMPLES = [
