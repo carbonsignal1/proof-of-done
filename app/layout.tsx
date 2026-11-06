@@ -15,7 +15,9 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable}>
+    // Some browser extensions add classes (e.g. "hydrated") to <html> before React loads.
+    // This only silences attribute mismatches on this one element, not its children.
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
       <body>
         <RoleProvider>
           <Nav />
