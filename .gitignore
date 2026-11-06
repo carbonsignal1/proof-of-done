@@ -11,3 +11,4 @@ agent-allowance
 # your personal demo photos (not published)
 demo-photos
 .DS_Store
+.claude
