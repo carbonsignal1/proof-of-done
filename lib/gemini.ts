@@ -1,11 +1,11 @@
 // Minimal Google Gemini client (REST, generateContent) with JSON output.
 // Docs: https://ai.google.dev/api/generate-content
 const BASE = "https://generativelanguage.googleapis.com/v1beta";
-const TIMEOUT_MS = 15_000; // per model; a hung request moves on to the next model
+const TIMEOUT_MS = 20_000; // per model; a hung request moves on to the next model
 
 // Tried in order: a model that is busy (503), rate limited (429) or retired (404)
 // is skipped and the next one is used. GEMINI_MODEL goes first when set.
-const DEFAULT_MODELS = ["gemini-3.5-flash", "gemini-3.6-flash", "gemini-3-flash-preview", "gemini-3.5-flash-lite", "gemini-3.8-flash"];
+const DEFAULT_MODELS = ["gemini-3-flash-preview", "gemini-3.5-flash", "gemini-3.5-flash-lite", "gemini-3.6-flash"];
 
 export function geminiModels(): string[] {
   const preferred = process.env.GEMINI_MODEL?.trim();
@@ -44,12 +44,19 @@ type JSONOpts = { system: string; parts: Part[]; schema: GeminiSchema; temperatu
  */
 export async function geminiJSON(opts: JSONOpts): Promise<{ value: unknown; model: string }> {
   let last: GeminiError | null = null;
-  for (const model of geminiModels()) {
-    try {
-      return { value: await callModel(model, opts), model };
-    } catch (e) {
-      if (!(e instanceof GeminiError) || ![404, 429, 500, 503].includes(e.status)) throw e;
-      last = e; // busy, rate limited or retired: try the next model
+  const retired = new Set<string>();
+  // Two passes over the model list: overloads are often brief, so after a short pause try again.
+  for (let pass = 0; pass < 2; pass++) {
+    if (pass > 0) await new Promise((r) => setTimeout(r, 2_000));
+    for (const model of geminiModels()) {
+      if (retired.has(model)) continue;
+      try {
+        return { value: await callModel(model, opts), model };
+      } catch (e) {
+        if (!(e instanceof GeminiError) || ![404, 429, 500, 503].includes(e.status)) throw e;
+        if (e.status === 404) retired.add(model); // retired for this key: don't retry it
+        last = e; // busy, rate limited or retired: try the next model
+      }
     }
   }
   throw last ?? new GeminiError("No Gemini model was available.", 503);
