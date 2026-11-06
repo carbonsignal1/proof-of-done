@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { PayPalError } from "./paypal";
+import { GeminiError } from "./gemini";
 import { JobError } from "./jobs";
 import { savePhoto } from "./store";
 
@@ -9,6 +10,7 @@ export function errorResponse(e: unknown) {
   if (e instanceof PayPalError) {
     return NextResponse.json({ error: e.message, details: e.details, debugId: e.debugId }, { status: 502 });
   }
+  if (e instanceof GeminiError) return NextResponse.json({ error: e.message }, { status: e.status === 429 ? 503 : 502 });
   if (e instanceof Anthropic.AuthenticationError) return NextResponse.json({ error: "The Anthropic API key was rejected." }, { status: 502 });
   if (e instanceof Anthropic.RateLimitError) return NextResponse.json({ error: "The AI is rate limited. Try again in a moment." }, { status: 503 });
   if (e instanceof Anthropic.APIError) return NextResponse.json({ error: `AI error: ${e.message}` }, { status: 502 });

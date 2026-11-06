@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createJob, sweepExpired } from "@/lib/jobs";
 import { load, newId } from "@/lib/store";
 import { paypalMode, defaultPayoutReceiver } from "@/lib/paypal";
-import { aiMode, MODEL } from "@/lib/ai";
+import { aiMode, aiModelName } from "@/lib/ai";
 import { errorResponse } from "@/lib/http";
 import type { ChecklistItem } from "@/lib/types";
 
@@ -15,7 +15,7 @@ export async function GET() {
     modes: {
       paypal: paypalMode(),
       ai: aiMode(),
-      model: aiMode() === "claude" ? MODEL : "mock",
+      model: aiModelName(),
       payoutReceiverConfigured: Boolean(defaultPayoutReceiver()),
     },
   });

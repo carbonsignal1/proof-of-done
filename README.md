@@ -36,7 +36,7 @@ Every money-moving call sends a `PayPal-Request-Id` idempotency key, and job sta
 
 ## AI integration
 
-[`lib/ai.ts`](lib/ai.ts) uses Claude (`claude-opus-5-5`) through the Anthropic TypeScript SDK with structured outputs (Zod schemas):
+[`lib/ai.ts`](lib/ai.ts) uses **Google Gemini** (via [`lib/gemini.ts`](lib/gemini.ts), with JSON-schema output) when `GEMINI_API_KEY` is set, or **Claude** (`claude-opus-5-5`, Anthropic TypeScript SDK with structured outputs) when `ANTHROPIC_API_KEY` is set. Every answer is validated against a Zod schema before the app uses it. For Gemini the app tries a list of models and skips any that are busy, rate limited or retired, so a demo doesn't stall on one overloaded model.
 
 - **Checklist drafting:** job description → 3–5 visual, photo-checkable items marked required or optional.
 - **Proof verification:** job, checklist, *before* and *after* photos → a verdict per item with evidence, a same-location check, a confidence level and feedback for the worker.
@@ -59,7 +59,8 @@ npm run dev                  # http://localhost:3000
 
 | Variable | What it enables |
 |---|---|
-| `ANTHROPIC_API_KEY` | Real Claude checklists and photo checks. Without it, a template checklist is used and you pick the AI result from a menu (clearly labelled "mock"). |
+| `GEMINI_API_KEY` | Real Gemini checklists and photo checks (free tier works; get a key at aistudio.google.com). |
+| `ANTHROPIC_API_KEY` | Use Claude instead of Gemini. With neither key, a template checklist is used and you pick the AI result from a menu (clearly labelled "mock"). |
 | `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` | Real PayPal Sandbox holds, captures and voids. Without them, PayPal is simulated and labelled "mock". |
 | `PAYPAL_PAYOUT_RECEIVER` | Default Sandbox account that receives worker payouts when the worker doesn't enter an email. |
 

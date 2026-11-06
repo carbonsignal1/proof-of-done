@@ -4,7 +4,7 @@ import type { Job, JobStatus } from "@/lib/types";
 
 export interface Modes {
   paypal: "sandbox" | "mock";
-  ai: "claude" | "mock";
+  ai: "gemini" | "claude" | "mock";
   model: string;
   payoutReceiverConfigured: boolean;
 }

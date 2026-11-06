@@ -52,7 +52,7 @@ export function Nav() {
               {data && (
                 <>
                   <span className={`pill ${data.modes.paypal === "sandbox" ? "accent" : "warn"}`}>PayPal {data.modes.paypal === "sandbox" ? "Sandbox" : "Mock"}</span>
-                  <span className={`pill ${data.modes.ai === "claude" ? "accent" : "warn"}`}>AI {data.modes.ai === "claude" ? "Claude" : "Mock"}</span>
+                  <span className={`pill ${data.modes.ai !== "mock" ? "accent" : "warn"}`}>AI {data.modes.ai === "gemini" ? "Gemini" : data.modes.ai === "claude" ? "Claude" : "Mock"}</span>
                 </>
               )}
             </>

@@ -5,13 +5,25 @@ import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { z } from "zod/v4";
 import { newId, readPhoto } from "./store";
+import { GEMINI_MODEL, geminiJSON, image, text, type GeminiSchema } from "./gemini";
 import type { ChecklistItem, Job, Verdict } from "./types";
 
 export const MODEL = "claude-opus-5-5";
 
-export function aiMode(): "claude" | "mock" {
-  if (process.env.AI_MODE === "mock") return "mock";
-  return process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN ? "claude" : "mock";
+export type AIMode = "gemini" | "claude" | "mock";
+
+/** Which AI does the work. AI_PROVIDER forces one; otherwise Gemini if its key is set, then Claude, else mock. */
+export function aiMode(): AIMode {
+  const forced = process.env.AI_PROVIDER ?? process.env.AI_MODE;
+  if (forced === "mock" || forced === "gemini" || forced === "claude") return forced;
+  if (process.env.GEMINI_API_KEY) return "gemini";
+  if (process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN) return "claude";
+  return "mock";
+}
+
+export function aiModelName(): string {
+  const m = aiMode();
+  return m === "gemini" ? GEMINI_MODEL : m === "claude" ? MODEL : "mock";
 }
 
 let client: Anthropic | null = null;
@@ -39,8 +51,43 @@ Rules for each item:
 - Short (under 8 words), concrete and visual: "Floor is swept", not "Good cleaning job".
 - Mark an item required only if the job clearly isn't done without it. Use 3 to 5 items, at most one optional.`;
 
+const CHECKLIST_GEMINI_SCHEMA: GeminiSchema = {
+  type: "OBJECT",
+  properties: {
+    items: {
+      type: "ARRAY",
+      description: "3 to 5 items",
+      items: {
+        type: "OBJECT",
+        properties: {
+          text: { type: "STRING", description: "A short, specific outcome that can be confirmed from one photo" },
+          required: { type: "BOOLEAN", description: "true if the job isn't done without it" },
+        },
+        required: ["text", "required"],
+      },
+    },
+  },
+  required: ["items"],
+};
+
 export async function draftChecklist(title: string, description: string): Promise<{ items: ChecklistItem[]; source: string }> {
-  if (aiMode() === "mock") return { items: mockChecklist(`${title} ${description}`), source: "template" };
+  const mode = aiMode();
+  if (mode === "mock") return { items: mockChecklist(`${title} ${description}`), source: "template" };
+
+  if (mode === "gemini") {
+    const { value, model } = await geminiJSON({
+      system: CHECKLIST_SYSTEM,
+      parts: [text(`Job title: ${title}\nJob description: ${description}`)],
+      schema: CHECKLIST_GEMINI_SCHEMA,
+    });
+    const parsed = ChecklistSchema.safeParse(value);
+    if (!parsed.success || parsed.data.items.length === 0) return { items: mockChecklist(`${title} ${description}`), source: "template" };
+    return {
+      items: parsed.data.items.slice(0, 6).map((i) => ({ id: newId("chk"), text: i.text.slice(0, 80), required: i.required })),
+      source: model,
+    };
+  }
+
   const res = await anthropic().beta.messages.parse({
     model: MODEL,
     max_tokens: 4000,
@@ -104,14 +151,70 @@ You get the job, a checklist with item ids, a BEFORE photo taken when the worker
 
 export type MockOutcome = "done" | "partial" | "elsewhere" | "unsure";
 
+const VERDICT_GEMINI_SCHEMA: GeminiSchema = {
+  type: "OBJECT",
+  properties: {
+    items: {
+      type: "ARRAY",
+      items: {
+        type: "OBJECT",
+        properties: {
+          id: { type: "STRING", description: "The checklist item id, copied exactly" },
+          passed: { type: "BOOLEAN" },
+          evidence: { type: "STRING", description: "One sentence on what in the AFTER photo shows this, or what is missing" },
+        },
+        required: ["id", "passed", "evidence"],
+      },
+    },
+    same_location: { type: "BOOLEAN", description: "Do the BEFORE and AFTER photos show the same place?" },
+    confidence: { type: "STRING", enum: ["high", "medium", "low"] },
+    summary: { type: "STRING", description: "One sentence overall judgement" },
+    feedback_for_worker: { type: "STRING", description: "If anything failed, a friendly, specific note on what to fix. Empty string if everything passed." },
+  },
+  required: ["items", "same_location", "confidence", "summary", "feedback_for_worker"],
+};
+
+/** When no usable verdict comes back, hand the decision to the poster instead of guessing. */
+function noVerdict(job: Job, model: string): { verdict: Verdict; model: string } {
+  return {
+    verdict: {
+      items: job.checklist.map((c) => ({ id: c.id, passed: false, evidence: "The AI could not grade this photo." })),
+      same_location: true,
+      confidence: "low",
+      summary: "The AI couldn't produce a verdict for this photo.",
+      feedback_for_worker: "",
+    },
+    model,
+  };
+}
+
 export async function verifyProof(job: Job, afterPhoto: string, mockOutcome?: MockOutcome): Promise<{ verdict: Verdict; model: string }> {
-  if (aiMode() === "mock") return { verdict: mockVerdict(job, mockOutcome ?? "done"), model: "mock" };
+  const mode = aiMode();
+  if (mode === "mock") return { verdict: mockVerdict(job, mockOutcome ?? "done"), model: "mock" };
 
   const before = job.beforePhoto ? readPhoto(job.beforePhoto) : null;
   const after = readPhoto(afterPhoto);
   if (!before || !after) throw new Error("Missing before or after photo.");
 
   const checklist = job.checklist.map((c) => `- id "${c.id}": ${c.text}${c.required ? " (required)" : " (optional)"}`).join("\n");
+
+  if (mode === "gemini") {
+    const { value, model } = await geminiJSON({
+      system: VERIFY_SYSTEM,
+      parts: [
+        text(`Job: ${job.title}\nDescription: ${job.description}\n\nChecklist:\n${checklist}\n\nBEFORE photo:`),
+        image(before.bytes, before.mime),
+        text("AFTER photo (the proof):"),
+        image(after.bytes, after.mime),
+        text("Grade every checklist item by id."),
+      ],
+      schema: VERDICT_GEMINI_SCHEMA,
+      temperature: 0,
+    });
+    const parsed = VerdictSchema.safeParse(value);
+    return parsed.success ? { verdict: parsed.data, model } : noVerdict(job, model);
+  }
+
   const res = await anthropic().beta.messages.parse({
     model: MODEL,
     max_tokens: 8000,
@@ -132,19 +235,7 @@ export async function verifyProof(job: Job, afterPhoto: string, mockOutcome?: Mo
     ...FALLBACK,
   });
 
-  if (res.stop_reason === "refusal" || !res.parsed_output) {
-    // No usable verdict: hand it to the poster rather than guessing.
-    return {
-      verdict: {
-        items: job.checklist.map((c) => ({ id: c.id, passed: false, evidence: "The AI could not grade this photo." })),
-        same_location: true,
-        confidence: "low",
-        summary: "The AI couldn't produce a verdict for this photo.",
-        feedback_for_worker: "",
-      },
-      model: res.model,
-    };
-  }
+  if (res.stop_reason === "refusal" || !res.parsed_output) return noVerdict(job, res.model);
   return { verdict: res.parsed_output, model: res.model };
 }
 
