@@ -97,7 +97,7 @@ Record in short clips and edit them together. Before each take, run **Reset demo
 
 | Time | Screen | Do | Say |
 |---|---|---|---|
-| 0:00–0:15 | Landing page (3D hero) | Let the coin hover, then land on the blocks | "Paying someone for a small job is a leap of faith. Proof-of-Done holds the money with PayPal and releases it only when the work is actually done." |
+| 0:00–0:15 | Landing page (3D checkmark hero) | Let the headline type a word or two while the gold coin drops into the green checkmark | "Paying someone for a small job is a leap of faith. Proof-of-Done holds the money with PayPal and releases it only when the work is actually done." |
 | 0:15–0:40 | **Post a job** | Click "Tidy and clear my desk", then **Draft checklist with AI**, then **Post job · $30** | "I describe the job. AI turns it into a checklist a photo can prove, and I can edit it, so we both agree on what 'done' means." |
 | 0:40–1:00 | Job page → PayPal popup | Click the **PayPal** button, log in with the Sandbox buyer, Continue | "I approve $30, but PayPal only *holds* it. Nothing is charged yet." Point at "Held by PayPal. Not charged yet." |
 | 1:00–1:20 | Switch to **Worker** | Enter a name, take the **before** photo (messy desk), **Claim job** | "The worker claims the job and photographs the desk before starting." |
@@ -105,7 +105,7 @@ Record in short clips and edit them together. Before each take, run **Reset demo
 | 1:50–2:15 | Worker: proof #2 | Upload the tidy photo, then **Submit proof** | "Second try: every item checks out. PayPal captures the hold and pays the worker through Payouts." Point at the green ticks, the capture ID and the timeline. |
 | 2:15–2:30 | Second job (prepared earlier) | Show a job that expired, or click **Cancel & release hold** | "If the job isn't done or is cancelled, the hold is released. The poster is never charged." |
 | 2:30–2:38 | **Ledger** (AG Grid) | Click **Paid**, search a PayPal ID, show the totals | "Every dollar is traceable: the ledger shows each job's PayPal hold, capture and payout." |
-| 2:38–2:45 | Landing, "Why it's safe" section | Scroll to the rules card | "AI judges the work. Code decides the money. PayPal holds and releases it." |
+| 2:38–2:45 | Landing, "Pay with…" section, or the FAQ answer "What if the AI gets it wrong?" | Scroll through *a hold → a checklist → photo proof → a release* | "AI judges the work. Code decides the money. PayPal holds and releases it." |
 
 Upload to YouTube as **Public**, with no copyrighted music. Don't show `.env.local`, API keys, or your Sandbox account passwords on screen.
 
