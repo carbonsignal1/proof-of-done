@@ -6,7 +6,7 @@ import { useJobs, useRole } from "./state";
 export function Brand() {
   return (
     <Link href="/" className="brand" aria-label="Proof-of-Done home">
-      PROOF<span className="box">DONE</span>
+      proof<i className="brand-dot" aria-hidden="true" /><em>done</em>
     </Link>
   );
 }
@@ -26,7 +26,7 @@ export function Nav() {
           {landing ? (
             <>
               <a href="#how">How it works</a>
-              <a href="#rules">Why it&apos;s safe</a>
+              <a href="#faq">Questions</a>
               <Link href="/jobs">Job board</Link>
             </>
           ) : (
@@ -42,7 +42,7 @@ export function Nav() {
         </nav>
         <div className="modes">
           {landing ? (
-            <Link href="/new" className="btn primary sm">Get started</Link>
+            <Link href="/new" className="btn outline sm">Post a job</Link>
           ) : (
             <>
               <span className="role-label">Viewing as</span>

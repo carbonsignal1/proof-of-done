@@ -1,10 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { Nav } from "@/components/Nav";
 import { RoleProvider } from "@/components/state";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+const serif = Instrument_Serif({ subsets: ["latin"], weight: "400", style: ["normal", "italic"], variable: "--font-serif", display: "swap" });
 
 export const metadata: Metadata = {
   title: "Proof-of-Done",
@@ -17,7 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     // Some browser extensions add classes (e.g. "hydrated") to <html> before React loads.
     // This only silences attribute mismatches on this one element, not its children.
-    <html lang="en" className={inter.variable} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${serif.variable}`} suppressHydrationWarning>
       <body>
         <RoleProvider>
           <Nav />
