@@ -153,6 +153,15 @@ export async function voidHold(authorizationId: string, mock: boolean): Promise<
   await call("POST", `/v2/payments/authorizations/${encodeURIComponent(authorizationId)}/void`, undefined, `void-${authorizationId}`);
 }
 
+/** Current status of a payout (PENDING, SUCCESS, UNCLAIMED, FAILED...). */
+export async function payoutStatus(batchId: string): Promise<string | undefined> {
+  const res = await call<{ batch_header?: { batch_status?: string }; items?: { transaction_status?: string }[] }>(
+    "GET",
+    `/v1/payments/payouts/${encodeURIComponent(batchId)}`,
+  );
+  return res.items?.[0]?.transaction_status ?? res.batch_header?.batch_status;
+}
+
 // ---- 4. Pay the worker ----
 
 export async function payWorker(opts: {

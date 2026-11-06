@@ -2,7 +2,7 @@
 // lib/rules.ts have decided.
 import { decide, isExpired } from "./rules";
 import { addEvent, load, newId, withDB, type DB } from "./store";
-import { captureHold, defaultPayoutReceiver, payWorker, PayPalError, voidHold } from "./paypal";
+import { captureHold, defaultPayoutReceiver, payoutStatus, payWorker, PayPalError, voidHold } from "./paypal";
 import type { ChecklistItem, Job, Verdict } from "./types";
 
 const usd = (n: number) => `$${n.toFixed(2)}`;
@@ -179,6 +179,29 @@ export async function cancelJob(id: string) {
     await cancel(job, "Cancelled by the poster");
     return job;
   });
+}
+
+const lastPayoutCheck = new Map<string, number>();
+
+/** While a real payout is still settling, ask PayPal for its status (at most every 10s per job). */
+export async function refreshPayout(id: string) {
+  const job = load().jobs.find((j) => j.id === id);
+  const pending = job?.paypal.payoutBatchId && !job.paypal.mock && ["PENDING", "PROCESSING", "UNCLAIMED"].includes(job.paypal.payoutStatus ?? "");
+  if (!job || !pending) return;
+  if (Date.now() - (lastPayoutCheck.get(id) ?? 0) < 10_000) return;
+  lastPayoutCheck.set(id, Date.now());
+  try {
+    const status = await payoutStatus(job.paypal.payoutBatchId!);
+    if (!status || status === job.paypal.payoutStatus) return;
+    await withDB((db) => {
+      const j = find(db, id);
+      j.paypal.payoutStatus = status;
+      if (status === "SUCCESS") addEvent(j, "payout", `PayPal confirmed the payout: ${j.worker?.name ?? "the worker"} has the money.`, j.paypal.payoutBatchId);
+      else if (status === "FAILED" || status === "RETURNED" || status === "BLOCKED") addEvent(j, "error", `PayPal reports the payout as ${status.toLowerCase()}.`, j.paypal.payoutBatchId);
+    });
+  } catch {
+    /* status check is best-effort; try again on the next poll */
+  }
 }
 
 /** Release the hold on every job whose deadline passed before it was paid. */
