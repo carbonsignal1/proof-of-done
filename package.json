@@ -18,6 +18,8 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.6.0",
+    "ag-grid-community": "^32.3.9",
+    "ag-grid-react": "^32.3.9",
     "next": "^15.5.29",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

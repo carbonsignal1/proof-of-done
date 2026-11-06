@@ -36,6 +36,7 @@ export function Nav() {
                 {role === "poster" && reviews > 0 && <span className="badge">{reviews}</span>}
               </Link>
               <Link href="/new" className={path === "/new" ? "active" : ""}>Post a job</Link>
+              <Link href="/ledger" className={path === "/ledger" ? "active" : ""}>Ledger</Link>
             </>
           )}
         </nav>

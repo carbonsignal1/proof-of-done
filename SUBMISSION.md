@@ -16,6 +16,7 @@ Pay for small jobs only when they're done: PayPal holds the money, AI checks the
 - Best Use of PayPal + AI
 - Most Impactful
 - Best Demo Delivery
+- **Best Use of AG Grid** (payments ledger)
 - Best Use of Render (if deployed on Render)
 
 ---
@@ -53,6 +54,7 @@ Proof-of-Done holds the payment for a small job and releases it only when photo 
   - Checklist drafting from the job description
   - Proof checking: before and after photos in, a verdict per checklist item out, plus a same-place check, a confidence level and feedback for the worker
   - Every answer is validated before the app uses it. If Gemini is overloaded, the app falls back to another Gemini model so the check doesn't stall.
+- **AG Grid (Community)** for the **Payments ledger**: every job's PayPal money trail (order, hold, capture, payout, or release) in one grid, with sorting, column filters, status quick-filters, search across PayPal IDs, CSV export, and totals for money held, captured, paid out and released. Rows open the job, and the grid follows the app's light and dark theme.
 - **Decision rules** in plain, unit-tested TypeScript (`lib/rules.ts`). The AI never moves money. Its verdict is input to these rules, and a missing or unclear verdict can never release a payment.
 
 ### Challenges we ran into
@@ -76,7 +78,7 @@ For AI that touches money, the safety boundary has to sit outside the model. AI 
 - AI-suggested fair prices for common jobs.
 
 ### Built with
-`typescript` `next.js` `react` `node.js` `paypal-orders-api` `paypal-payouts-api` `paypal-js-sdk` `google-gemini` `render`
+`typescript` `next.js` `react` `node.js` `paypal-orders-api` `paypal-payouts-api` `paypal-js-sdk` `google-gemini` `ag-grid` `render`
 
 ### Tools (required field: AI tools and how they were used)
 - **Google Gemini (Gemini API):** powers the app's AI. It drafts the job checklist and checks before/after photos against it, returning structured JSON verdicts.
@@ -101,8 +103,9 @@ Record in short clips and edit them together. Before each take, run **Reset demo
 | 1:00–1:20 | Switch to **Worker** | Enter a name, take the **before** photo (messy desk), **Claim job** | "The worker claims the job and photographs the desk before starting." |
 | 1:20–1:50 | Worker: proof #1 | Upload the half-done photo, then **Submit proof** | "First try: the AI spots the cups still on the desk. No money moves, and the worker gets specific feedback." Point at the red item. |
 | 1:50–2:15 | Worker: proof #2 | Upload the tidy photo, then **Submit proof** | "Second try: every item checks out. PayPal captures the hold and pays the worker through Payouts." Point at the green ticks, the capture ID and the timeline. |
-| 2:15–2:35 | Second job (prepared earlier) | Show a job that expired, or click **Cancel & release hold** | "If the job isn't done or is cancelled, the hold is released. The poster is never charged." |
-| 2:35–2:45 | Landing, "Why it's safe" section | Scroll to the rules card | "AI judges the work. Code decides the money. PayPal holds and releases it." |
+| 2:15–2:30 | Second job (prepared earlier) | Show a job that expired, or click **Cancel & release hold** | "If the job isn't done or is cancelled, the hold is released. The poster is never charged." |
+| 2:30–2:38 | **Ledger** (AG Grid) | Click **Paid**, search a PayPal ID, show the totals | "Every dollar is traceable: the ledger shows each job's PayPal hold, capture and payout." |
+| 2:38–2:45 | Landing, "Why it's safe" section | Scroll to the rules card | "AI judges the work. Code decides the money. PayPal holds and releases it." |
 
 Upload to YouTube as **Public**, with no copyrighted music. Don't show `.env.local`, API keys, or your Sandbox account passwords on screen.
 

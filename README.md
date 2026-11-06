@@ -45,6 +45,10 @@ The AI never moves money. Its verdict goes to [`lib/rules.ts`](lib/rules.ts), pl
 
 **Built-in defences against gaming the check:** the before photo is taken when the job is claimed, the AI checks both photos show the same place, unreadable items count as not done, text inside a photo is ignored as an instruction, and the poster always has the final say when the AI isn't sure.
 
+## Payments ledger (AG Grid)
+
+[`app/ledger/page.tsx`](app/ledger/page.tsx) shows every job's PayPal money trail in an **AG Grid Community** grid: order, hold (authorization), capture, payout batch and status, AI checks and outcome. It supports sorting, column filters, status quick-filters, search across names and PayPal IDs, and CSV export, with totals for money held, captured, paid out and released. Click a row to open the job.
+
 ## Run it locally
 
 Requires Node 22.18 or later.
@@ -103,7 +107,7 @@ npm run typecheck
 ## Project layout
 
 ```
-app/                  Next.js pages (jobs board, post a job, job page) and API routes
+app/                  Next.js pages (landing, jobs board, post a job, job page, ledger) and API routes
 lib/rules.ts          Decision rules: approve / reject / poster decides (pure, tested)
 lib/ai.ts             Claude checklist drafting and photo verification
 lib/paypal.ts         PayPal REST client: OAuth, Orders (authorize), capture, void, Payouts
