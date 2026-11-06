@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: proof-of-done
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/jobs
+    envVars:
+      - key: NODE_VERSION
+        value: "22.18.0"
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: PAYPAL_PAYOUT_RECEIVER
+        sync: false
+      - key: DATA_DIR
+        value: /tmp/proof-of-done
