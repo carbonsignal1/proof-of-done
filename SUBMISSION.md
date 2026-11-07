@@ -17,7 +17,7 @@ Pay for small jobs only when they're done: PayPal holds the money, AI checks the
 - Most Impactful
 - Best Demo Delivery
 - **Best Use of AG Grid** (payments ledger)
-- Best Use of Render (if deployed on Render)
+- Best Use of Render (deployed on Render)
 
 ---
 
@@ -85,7 +85,7 @@ For AI that touches money, the safety boundary has to sit outside the model. AI 
 - **Claude Code (Anthropic):** helped design, write and test the application code.
 
 ### Links
-- Hosted demo: `<https://your-app.onrender.com>`
+- Hosted demo: https://proof-of-done-viyb.onrender.com
 - Code: https://github.com/carbonsignal1/proof-of-done
 - Video: `<https://youtu.be/...>`
 

@@ -2,6 +2,8 @@
 
 **Pay for small jobs only when they're actually done.**
 
+**Live demo:** https://proof-of-done-viyb.onrender.com (PayPal Sandbox, test money; the free server may take up to a minute to wake up)
+
 Paying someone for a small job, like tidying a room, mowing a lawn or assembling a shelf, is a leap of faith. Pay first and you might get a half-done job. Pay after and the worker might never get paid.
 
 Proof-of-Done fixes that with PayPal and AI:
@@ -9,7 +11,7 @@ Proof-of-Done fixes that with PayPal and AI:
 1. **You post a job.** AI turns your description into a short checklist that a photo can prove ("Desk surface is clear", "Cables tidied away"). You edit it, so both sides agree on what "done" means before work starts.
 2. **PayPal holds the money.** You approve the payment, but PayPal only *authorizes* it. Nothing is charged yet.
 3. **The worker sends photo proof.** A "before" photo when they claim the job, an "after" photo when they finish.
-4. **AI checks the proof.** Claude compares the photos against every checklist item and reports what it sees.
+4. **AI checks the proof.** Gemini compares the photos against every checklist item and reports what it sees.
 5. **Code decides the money:**
    - Every required item done, same place, high confidence → PayPal **captures** the hold and **pays the worker** through Payouts.
    - Something's missing → the worker gets specific feedback and can try again (3 attempts).
@@ -102,14 +104,14 @@ npm run typecheck
 
 ## Deploy
 
-[`render.yaml`](render.yaml) deploys to Render as a web service: New → Blueprint → pick this repo, then add the environment variables. Data is stored on local disk (`DATA_DIR`) and resets when a free instance restarts.
+Live at https://proof-of-done-viyb.onrender.com. [`render.yaml`](render.yaml) deploys to Render as a web service: New → Blueprint → pick this repo, then add the environment variables. Fill in every secret before deploying, or redeploy after adding one: Render only reads environment variables when the service starts. Data is stored on local disk (`DATA_DIR`) and resets when a free instance restarts.
 
 ## Project layout
 
 ```
 app/                  Next.js pages (landing, jobs board, post a job, job page, ledger) and API routes
 lib/rules.ts          Decision rules: approve / reject / poster decides (pure, tested)
-lib/ai.ts             Claude checklist drafting and photo verification
+lib/ai.ts             AI checklist drafting and photo verification (Gemini or Claude)
 lib/paypal.ts         PayPal REST client: OAuth, Orders (authorize), capture, void, Payouts
 lib/jobs.ts           Job lifecycle and every money movement
 lib/store.ts          JSON + photo file storage
