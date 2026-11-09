@@ -3,6 +3,7 @@
 **Pay for small jobs only when they're actually done.**
 
 **Live demo:** https://proof-of-done-viyb.onrender.com (PayPal Sandbox, test money; the free server may take up to a minute to wake up)
+**Demo video (1:48):** https://youtu.be/2_Y1jbSwcMU
 
 Paying someone for a small job, like tidying a room, mowing a lawn or assembling a shelf, is a leap of faith. Pay first and you might get a half-done job. Pay after and the worker might never get paid.
 

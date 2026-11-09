@@ -87,7 +87,7 @@ For AI that touches money, the safety boundary has to sit outside the model. AI 
 ### Links
 - Hosted demo: https://proof-of-done-viyb.onrender.com
 - Code: https://github.com/carbonsignal1/proof-of-done
-- Video: `<https://youtu.be/...>`
+- Video: https://youtu.be/2_Y1jbSwcMU
 
 ---
 
